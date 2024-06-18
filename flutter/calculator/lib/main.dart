@@ -52,7 +52,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
       } else {
         if (_result.isNotEmpty && !_isOperator(buttonText)) {
           _expression = '';
-          _result = '';
+          _result = ''; //comment
         }
         _expression += buttonText;
       }

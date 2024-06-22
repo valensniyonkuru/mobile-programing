@@ -11,16 +11,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Calculator',
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.teal,
         colorScheme:
-            ColorScheme.fromSwatch(primarySwatch: Colors.orange).copyWith(
-          secondary: Colors.black,
+            ColorScheme.fromSwatch(primarySwatch: Colors.teal).copyWith(
+          secondary: Colors.amber,
         ),
-        scaffoldBackgroundColor: Color(0xFFFAF0E6), // linen color
+        scaffoldBackgroundColor: Color(0xFF1E1E1E), // Dark background
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black, // button background color
-            foregroundColor: Colors.orange, // button text color
+            backgroundColor: Colors.teal, // Button background color
+            foregroundColor: Colors.white, // Button text color
           ),
         ),
       ),
@@ -52,7 +52,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
       } else {
         if (_result.isNotEmpty && !_isOperator(buttonText)) {
           _expression = '';
-          _result = ''; //comment
+          _result = '';
         }
         _expression += buttonText;
       }
@@ -64,7 +64,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
         buttonText == '-' ||
         buttonText == '×' ||
         buttonText == '÷' ||
-        buttonText == '%';
+        buttonText == '%' ||
+        buttonText == '(' ||
+        buttonText == ')';
   }
 
   String _calculate(String expression) {
@@ -102,73 +104,71 @@ class _CalculatorPageState extends State<CalculatorPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Niyonkuru valens'),
-        backgroundColor: Color.fromARGB(255, 145, 206, 39), // app bar color
+        title: Text(
+          'Calculator',
+          style: TextStyle(color: Colors.white), // Title color changed to white
+        ),
+        backgroundColor: Color(0xFF00897B), // Teal color for AppBar
       ),
-      body: Padding(
+      body: Container(
         padding: const EdgeInsets.all(16.0),
+        color: Color(0xFF1E1E1E), // Dark background
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              _expression,
-              style: TextStyle(fontSize: 24),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              decoration: BoxDecoration(
+                color:
+                    Colors.white.withOpacity(0.1), // Slightly transparent white
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Text(
+                _expression,
+                style: TextStyle(fontSize: 32, color: Colors.white),
+              ),
             ),
-            Text(
-              _result,
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+            SizedBox(height: 10),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              decoration: BoxDecoration(
+                color:
+                    Colors.white.withOpacity(0.1), // Slightly transparent white
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Text(
+                _result,
+                style: TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
             ),
             SizedBox(height: 20),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Row(
-                    children: [
-                      CalculatorButton('7', _onButtonPressed),
-                      CalculatorButton('8', _onButtonPressed),
-                      CalculatorButton('9', _onButtonPressed),
-                      CalculatorButton('÷', _onButtonPressed),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      CalculatorButton('4', _onButtonPressed),
-                      CalculatorButton('5', _onButtonPressed),
-                      CalculatorButton('6', _onButtonPressed),
-                      CalculatorButton('×', _onButtonPressed),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      CalculatorButton('1', _onButtonPressed),
-                      CalculatorButton('2', _onButtonPressed),
-                      CalculatorButton('3', _onButtonPressed),
-                      CalculatorButton('-', _onButtonPressed),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      CalculatorButton('0', _onButtonPressed),
-                      CalculatorButton('.', _onButtonPressed),
-                      CalculatorButton('=', _onButtonPressed),
-                      CalculatorButton('+', _onButtonPressed),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CalculatorButton('C', _onButtonPressed),
-                      CalculatorButton('%', _onButtonPressed),
-                      CalculatorButton('+/-', _onButtonPressed),
-                    ],
-                  ),
+                  buildButtonRow(['(', ')', 'C', '÷']),
+                  buildButtonRow(['7', '8', '9', '×']),
+                  buildButtonRow(['4', '5', '6', '-']),
+                  buildButtonRow(['1', '2', '3', '+']),
+                  buildButtonRow(['0', '.', '=', '%']),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildButtonRow(List<String> buttonTexts) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: buttonTexts
+          .map((text) => CalculatorButton(text, _onButtonPressed))
+          .toList(),
     );
   }
 }
@@ -184,14 +184,34 @@ class CalculatorButton extends StatelessWidget {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-          child: Text(_text, style: TextStyle(fontSize: 20)),
-          onPressed: () => _onPressed(_text),
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.all(24),
-            backgroundColor: Colors.black, // button background color
-            foregroundColor:
-                Color.fromARGB(255, 86, 146, 106), // button text color
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF64B5F6),
+                Color(0xFF64FFDA)
+              ], // Gradient from light blue to light green
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+          ),
+          child: ElevatedButton(
+            child: Text(
+              _text,
+              style: TextStyle(fontSize: 24, color: Colors.black),
+            ),
+            onPressed: () => _onPressed(_text),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.all(24),
+              backgroundColor: Colors
+                  .transparent, // Make button background transparent to show gradient
+              shadowColor: Colors.transparent, // Remove button shadow
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                    8.0), // Match border radius of container
+              ),
+            ),
           ),
         ),
       ),

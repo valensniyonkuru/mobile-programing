@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:math_expressions/math_expressions.dart';
+import 'signin_page.dart';
+import 'signup_page.dart';
+import 'calculator_page.dart';
+import 'profile_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,211 +12,123 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Calculator',
+      title: 'Calculator App',
       theme: ThemeData(
         primarySwatch: Colors.teal,
-        colorScheme:
-            ColorScheme.fromSwatch(primarySwatch: Colors.teal).copyWith(
-          secondary: Colors.amber,
-        ),
-        scaffoldBackgroundColor: Color(0xFF1E1E1E), // Dark background
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.teal, // Button background color
-            foregroundColor: Colors.white, // Button text color
-          ),
-        ),
+        scaffoldBackgroundColor: Color(0xFF1E1E1E),
       ),
-      home: CalculatorPage(),
+      home: HomePage(),
     );
   }
 }
 
-class CalculatorPage extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
-  _CalculatorPageState createState() => _CalculatorPageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _CalculatorPageState extends State<CalculatorPage> {
-  String _expression = '';
-  String _result = '';
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+  final List<Widget> _pages = [
+    SignInPage(),
+    SignUpPage(),
+    CalculatorPage(),
+    ProfilePage(),
+  ];
 
-  void _onButtonPressed(String buttonText) {
-    setState(() {
-      if (buttonText == 'C') {
-        _expression = '';
-        _result = '';
-      } else if (buttonText == '=') {
-        try {
-          _result = _calculate(_expression);
-        } catch (e) {
-          _result = 'Error';
-        }
-      } else {
-        if (_result.isNotEmpty && !_isOperator(buttonText)) {
-          _expression = '';
-          _result = '';
-        }
-        _expression += buttonText;
-      }
-    });
-  }
-
-  bool _isOperator(String buttonText) {
-    return buttonText == '+' ||
-        buttonText == '-' ||
-        buttonText == '×' ||
-        buttonText == '÷' ||
-        buttonText == '%' ||
-        buttonText == '(' ||
-        buttonText == ')';
-  }
-
-  String _calculate(String expression) {
-    try {
-      // Handle modulus manually
-      String modifiedExpression = _handleModulus(expression);
-      // Replace × and ÷ with * and / respectively
-      modifiedExpression =
-          modifiedExpression.replaceAll('×', '*').replaceAll('÷', '/');
-
-      final parser = Parser();
-      final expressionAst = parser.parse(modifiedExpression);
-      final result =
-          expressionAst.evaluate(EvaluationType.REAL, ContextModel());
-      return result.toString();
-    } catch (e) {
-      return 'Error';
-    }
-  }
-
-  String _handleModulus(String expression) {
-    RegExp regex = RegExp(r'(\d+\.?\d*)\s*%\s*(\d+\.?\d*)');
-    while (regex.hasMatch(expression)) {
-      expression = expression.replaceFirstMapped(regex, (match) {
-        double leftOperand = double.parse(match.group(1)!);
-        double rightOperand = double.parse(match.group(2)!);
-        double result = leftOperand % rightOperand;
-        return result.toString();
+  void _onItemTapped(int index) {
+    if (index >= 0 && index < _pages.length) {
+      setState(() {
+        _selectedIndex = index;
       });
     }
-    return expression;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Calculator',
-          style: TextStyle(color: Colors.white), // Title color changed to white
-        ),
-        backgroundColor: Color(0xFF00897B), // Teal color for AppBar
+        title: Text('Calculator App'),
+        backgroundColor: Color(0xFF00897B),
       ),
-      body: Container(
-        padding: const EdgeInsets.all(16.0),
-        color: Color(0xFF1E1E1E), // Dark background
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
               decoration: BoxDecoration(
-                color:
-                    Colors.white.withOpacity(0.1), // Slightly transparent white
-                borderRadius: BorderRadius.circular(8.0),
+                color: Colors.teal,
               ),
               child: Text(
-                _expression,
-                style: TextStyle(fontSize: 32, color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              decoration: BoxDecoration(
-                color:
-                    Colors.white.withOpacity(0.1), // Slightly transparent white
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Text(
-                _result,
+                'Menu',
                 style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
               ),
             ),
-            SizedBox(height: 20),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  buildButtonRow(['(', ')', 'C', '÷']),
-                  buildButtonRow(['7', '8', '9', '×']),
-                  buildButtonRow(['4', '5', '6', '-']),
-                  buildButtonRow(['1', '2', '3', '+']),
-                  buildButtonRow(['0', '.', '=', '%']),
-                ],
-              ),
+            ListTile(
+              leading: Icon(Icons.login),
+              title: Text('Sign In'),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(0);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.app_registration),
+              title: Text('Sign Up'),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(1);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.calculate),
+              title: Text('Calculator'),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(2);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(3);
+              },
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget buildButtonRow(List<String> buttonTexts) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: buttonTexts
-          .map((text) => CalculatorButton(text, _onButtonPressed))
-          .toList(),
-    );
-  }
-}
-
-class CalculatorButton extends StatelessWidget {
-  final String _text;
-  final Function _onPressed;
-
-  CalculatorButton(this._text, this._onPressed);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF64B5F6),
-                Color(0xFF64FFDA)
-              ], // Gradient from light blue to light green
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.login),
+            label: 'Sign In',
           ),
-          child: ElevatedButton(
-            child: Text(
-              _text,
-              style: TextStyle(fontSize: 24, color: Colors.black),
-            ),
-            onPressed: () => _onPressed(_text),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.all(24),
-              backgroundColor: Colors
-                  .transparent, // Make button background transparent to show gradient
-              shadowColor: Colors.transparent, // Remove button shadow
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                    8.0), // Match border radius of container
-              ),
-            ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.app_registration),
+            label: 'Sign Up',
           ),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calculate),
+            label: 'Calculator',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
       ),
     );
   }
